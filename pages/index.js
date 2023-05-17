@@ -5,6 +5,7 @@ import styles from "../styles/Home.module.css";
 import globalStyles from "../styles/globals.css";
 import ClipLoader from "react-spinners/ClipLoader";
 import ProgressBar from "@ramonak/react-progress-bar";
+import { useQuery } from "../convex/_generated/react";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -15,6 +16,8 @@ export default function Home() {
   const [progress, setProgress] = useState(0);
   const [startTime, setStartTime] = useState(new Date());
   const [timeTaken, setTimeTaken] = useState(0);
+
+  const images = useQuery("getImages");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -79,14 +82,13 @@ export default function Home() {
   };
 
   return (
+
     <div className={styles.container}>
       <Head>
         <title>Print Wizard</title>
       </Head>
 
-      <p>
-        Logo Maker
-      </p>
+      <p>Logo Maker</p>
 
       <form className={styles.form} onSubmit={handleSubmit}>
         <input type="text" name="prompt" placeholder="Enter a prompt to display an image" />
@@ -99,14 +101,12 @@ export default function Home() {
         <div>
             {prediction.output && (
               <div className={styles.imageWrapper}>
-                {/* Image URL: {prediction.output}<br /> */}
-                <img
-                  src={prediction.output}
-                  alt="output"
-                  style={{"maxWidth": "100vw"}}
-                />
-                <p>Time taken: {timeTaken} seconds</p>
-              </div>
+                <img src={prediction.output} alt="output" style={{"maxWidth": "100vw"}} />
+                <p>
+                  Time taken: {timeTaken} seconds
+                  {/* Image URL: {prediction.output}<br /> */}
+                </p>
+            </div>
             )}
             {loading && (
               <div>
@@ -116,13 +116,23 @@ export default function Home() {
                     margin: 0 auto;
                     border-color: red;
                   `} size={50} />
-                  status: {prediction.status}
+                  Status: {prediction.status}
                 </p>
                 <ProgressBar completed={progress} />
               </div>
             )}
         </div>
       )}
+
+      <h2>More generated images</h2>
+      <div className="generatedImages">
+        {images?.map(({ _id, prompt, url, created }) => (
+          <div key={_id.toString()}>
+            <div class="prompt">{prompt}</div>
+            <img src={url} alt={prompt} style={{"maxWidth": "150px"}} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

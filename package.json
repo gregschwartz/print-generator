@@ -11,6 +11,7 @@
   "dependencies": {
     "@ramonak/react-progress-bar": "^5.0.3",
     "autoprefixer": "^10.4.14",
+    "convex": "^0.14.1",
     "eslint": "8.40.0",
     "eslint-config-next": "13.4.2",
     "next": "13.4.2",
@@ -19,5 +20,8 @@
     "react-dom": "18.2.0",
     "react-spinners": "^0.13.8",
     "tailwindcss": "^3.3.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.6"
   }
 }
