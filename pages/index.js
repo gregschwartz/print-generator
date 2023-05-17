@@ -90,7 +90,7 @@ export default function Home() {
       </p>
 
       <form className={styles.form} onSubmit={handleSubmit}>
-        <input type="text" name="prompt" placeholder="Enter a prompt to display an image" value="spaceman on a rocket holding a flag that says 'Hello Moon'" />
+        <input type="text" name="prompt" placeholder="Enter a prompt to display an image" />
         <button type="submit">Go!</button>
       </form>
 
