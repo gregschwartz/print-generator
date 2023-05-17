@@ -52,8 +52,8 @@ export default function Home() {
       const response = await fetch("/api/predictions/" + prediction.id);
       prediction = await response.json();
 
-      console.log(prediction.status, cycle);
-      if(startTime && cycle % 10 === 0) {
+      if(startTime && cycle % 50 === 0) {
+        console.log(prediction.status, cycle);
         const timeDiff = (new Date()).getTime() - startTime.getTime();
         console.log("Time so far: ", timeDiff / 1000, "seconds");
       }
@@ -65,8 +65,10 @@ export default function Home() {
       }
       setPrediction(prediction);
 
-      cycle += 1;
-      setProgress(cycle);
+      if(cycle < 99) {
+        cycle += 1;
+        setProgress(cycle);
+      }
     }
     setProgress(100);
     setLoading(false);
@@ -74,7 +76,6 @@ export default function Home() {
 
     //calculate time it took to run
     setTimeTaken(((new Date()).getTime() - startTime.getTime())/1000);
-    console.log("Time it took was: ", timeTaken);
   };
 
   return (
