@@ -14,6 +14,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [startTime, setStartTime] = useState(new Date());
+  const [timeTaken, setTimeTaken] = useState(0);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,6 +23,7 @@ export default function Home() {
     setLoading(true);
     setProgress(0);
     setStartTime(new Date());
+    setTimeTaken(0);
     
     //start the generation
     const response = await fetch("/api/predictions", {
@@ -39,13 +41,7 @@ export default function Home() {
       return;
     }
     setPrediction(prediction);
-
-    if(startTime) {
-      const timeTaken = (new Date()).getTime() - startTime.getTime();
-      console.log("Call to start took: ", timeTaken/1000);
-    } else {
-      console.log("start time didn't get saved, wtf");
-    }
+    setProgress(1);
 
     let cycle=0;
     while (
@@ -58,8 +54,8 @@ export default function Home() {
 
       console.log(prediction.status, cycle);
       if(startTime && cycle % 10 === 0) {
-        const timeTaken = (new Date()).getTime() - startTime.getTime();
-        console.log("Time so far: ", timeTaken / 1000, "seconds");
+        const timeDiff = (new Date()).getTime() - startTime.getTime();
+        console.log("Time so far: ", timeDiff / 1000, "seconds");
       }
 
       if (response.status !== 200) {
@@ -77,12 +73,8 @@ export default function Home() {
     console.log("image generated", prediction.output);
 
     //calculate time it took to run
-    if(startTime) {
-      const timeTaken = (new Date()).getTime() - startTime.getTime();
-      console.log("Time it took was: ", timeTaken);
-    } else {
-      console.log("start time didn't get saved, wtf");
-    }
+    setTimeTaken(((new Date()).getTime() - startTime.getTime())/1000);
+    console.log("Time it took was: ", timeTaken);
   };
 
   return (
@@ -106,12 +98,13 @@ export default function Home() {
         <div>
             {prediction.output && (
               <div className={styles.imageWrapper}>
-                Image URL: {prediction.output}<br />
+                {/* Image URL: {prediction.output}<br /> */}
                 <img
                   src={prediction.output}
                   alt="output"
                   style={{"maxWidth": "100vw"}}
                 />
+                <p>Time taken: {timeTaken} seconds</p>
               </div>
             )}
             {loading && (
