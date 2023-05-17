@@ -2,6 +2,7 @@ import { useState } from "react";
 import Head from "next/head";
 import Image from "next/image";
 import styles from "../styles/Home.module.css";
+import globalStyles from "../styles/globals.css";
 import ClipLoader from "react-spinners/ClipLoader";
 import ProgressBar from "@ramonak/react-progress-bar";
 
@@ -15,11 +16,14 @@ export default function Home() {
   const [startTime, setStartTime] = useState(new Date());
 
   const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    setError(null);
     setLoading(true);
     setProgress(0);
-
     setStartTime(new Date());
-    e.preventDefault();
+    
+    //start the generation
     const response = await fetch("/api/predictions", {
       method: "POST",
       headers: {
@@ -38,12 +42,12 @@ export default function Home() {
 
     if(startTime) {
       const timeTaken = (new Date()).getTime() - startTime.getTime();
-      console.log("Time it took was: ", timeTaken);
+      console.log("Call to start took: ", timeTaken/1000);
     } else {
       console.log("start time didn't get saved, wtf");
     }
 
-    let cycle=0.0;
+    let cycle=0;
     while (
       prediction.status !== "succeeded" &&
       prediction.status !== "failed"
@@ -52,10 +56,10 @@ export default function Home() {
       const response = await fetch("/api/predictions/" + prediction.id);
       prediction = await response.json();
 
-      console.log(prediction.status, cycle, prediction.logs);
-      if(startTime) {
+      console.log(prediction.status, cycle);
+      if(startTime && cycle % 10 === 0) {
         const timeTaken = (new Date()).getTime() - startTime.getTime();
-        console.log("Time it took was: ", timeTaken);
+        console.log("Time so far: ", timeTaken / 1000, "seconds");
       }
 
       if (response.status !== 200) {
@@ -65,10 +69,12 @@ export default function Home() {
       }
       setPrediction(prediction);
 
-      cycle += 0.25;
+      cycle += 1;
       setProgress(cycle);
     }
+    setProgress(100);
     setLoading(false);
+    console.log("image generated", prediction.output);
 
     //calculate time it took to run
     if(startTime) {
@@ -82,11 +88,11 @@ export default function Home() {
   return (
     <div className={styles.container}>
       <Head>
-        <title>Replicate + Next.js</title>
+        <title>Print Wizard</title>
       </Head>
 
       <p>
-        Print Wizard
+        Logo Maker
       </p>
 
       <form className={styles.form} onSubmit={handleSubmit}>
@@ -100,10 +106,11 @@ export default function Home() {
         <div>
             {prediction.output && (
               <div className={styles.imageWrapper}>
+                Image URL: {prediction.output}<br />
                 <img
                   src={prediction.output}
                   alt="output"
-                  style='max-width: 100vw'
+                  style={{"maxWidth": "100vw"}}
                 />
               </div>
             )}
