@@ -129,9 +129,9 @@ export default function Home() {
   const handleVisualChange = (event) => setVisual(event.target.value);
   const handleNameChange = (event) => setName(event.target.value);
 
-  // useEffect(() => {
-  //   console.log(type1, type2, visual, name);
-  // }, [type1, type2, visual, name]);
+  useEffect(() => {
+    console.log(type1, type2, visual, name);
+  }, [type1, type2, visual, name]);
 
   return (
     <div className={styles.container}>
