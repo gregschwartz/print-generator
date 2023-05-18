@@ -102,12 +102,13 @@ export default function Home() {
 
       if(prediction.status === "starting") {
         cycle = Math.min(30, cycle + 0.1);
-      } else if(cycle < 98) {
-        cycle += 1;
-      }
 
-      //round to first decimal
-      cycle = Math.round(cycle * 10) / 10;
+        //round to first decimal
+        cycle = Math.round(cycle * 10) / 10;
+        console.log("starting so tiny steps:", cycle);
+      } else if(cycle < 98) {
+        cycle = Math.round(cycle + 1);
+      }
 
       setProgress(cycle);
     }
@@ -152,16 +153,16 @@ export default function Home() {
       <Tabs>
         <TabList>
           <Tab>{loading ? `Generating Your ${type1}: ${progress}%` : `Generate ${type1}`}</Tab>
-          <Tab>Previously Generated Logos</Tab>
+          <Tab>Previously Crafted Wishes</Tab>
         </TabList>
 
         <TabPanel>
           <form className="grid grid-cols-4 gap-4 items-center" onSubmit={handleSubmit}>
             <label>I wish for a:</label>
-            <ButtonBar name="type1" buttons={["Logo", "Textual Art", "3D Icon"]} onChange={handleType1Change} className="col-span-3" />
+            <ButtonBar name="type1" buttons={["Logo", "Textual Art", "3D Icon"]} onChange={handleType1Change} selected={type1} className="col-span-3" />
             
             <label>In this style:</label>
-            <ButtonBar name="type2" buttons={["Cartoon", "Illustration", "Modern"]} onChange={handleType2Change} className="col-span-3" />
+            <ButtonBar name="type2" buttons={["Cartoon", "Illustration", "Modern"]} onChange={handleType2Change} selected={type2} className="col-span-3" />
             
             <label>Primary visual:</label>
             <input type="text" name="visual" placeholder="Visual e.g. robot at a desk, skateboard" onChange={handleVisualChange}  className="rounded-lg px-2 col-span-3" />
@@ -179,7 +180,7 @@ export default function Home() {
             <div className="output mt-14 flex flex-col items-center text-sm">
                 {prediction.output && (
                   <div className={`flex flex-col items-center ${styles.imageWrapper}`}>
-                    <h1 className="mb-4">🎉 Your wish has been crafted!</h1>
+                    <h1 className="mb-4">🎉 Wish crafted 🎉</h1>
                     <img src={prediction.output} alt="output" ref={imageRef} />
                     <p className="text-gray-400">
                       Time taken: {timeTaken} seconds

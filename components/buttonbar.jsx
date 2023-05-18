@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const ButtonBar = ({ buttons, name, onChange, className }) => {
   const [selected, setSelected] = useState(buttons[0]); // initial selected button
@@ -7,6 +7,10 @@ const ButtonBar = ({ buttons, name, onChange, className }) => {
     setSelected(event.target.value); // update the selected button
     onChange(event); // pass the change event to the parent component
   };
+
+  useEffect(() => {
+    onChange({ target: { value: selected }});
+  }, []); // The empty array means this effect only runs once, on component mount
 
   return (
     <div className={`flex ${className}`}>
@@ -18,6 +22,7 @@ const ButtonBar = ({ buttons, name, onChange, className }) => {
             name={name}
             value={button}
             onChange={handleChange}
+            checked={selected === button} 
             className="hidden"
           />
           <label
