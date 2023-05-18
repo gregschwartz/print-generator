@@ -165,10 +165,10 @@ export default function Home() {
             <ButtonBar name="type2" buttons={["Cartoon", "Illustration", "Modern"]} onChange={handleType2Change} selected={type2} className="col-span-3" />
             
             <label>Primary visual:</label>
-            <input type="text" name="visual" placeholder="Visual e.g. robot at a desk, skateboard" onChange={handleVisualChange}  className="rounded-lg px-2 col-span-3" />
+            <input type="text" name="visual" placeholder="Robot at a desk, skateboard, etc" onChange={handleVisualChange}  className="rounded-lg px-2 col-span-3" />
             
             <label>With the name:</label>
-            <input type="text" name="name" placeholder="Name, e.g. Super Startup" onChange={handleNameChange} className="rounded-lg px-2 col-span-3" />
+            <input type="text" name="name" placeholder="Super Startup, FastDb, etc" onChange={handleNameChange} className="rounded-lg px-2 col-span-3" />
             
             <button type="submit" className="rounded-full text-white bg-blue-500	hover:bg-blue-600 col-span-4">Craft My Wish!</button>
           </form>
