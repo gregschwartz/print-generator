@@ -11,6 +11,8 @@
 
 import type { ApiFromModules } from "convex/api";
 import type * as getImages from "../getImages";
+import type * as http from "../http";
+import type * as sendImage from "../sendImage";
 
 /**
  * A type describing your app's public Convex API.
@@ -23,4 +25,6 @@ import type * as getImages from "../getImages";
  */
 export type API = ApiFromModules<{
   getImages: typeof getImages;
+  http: typeof http;
+  sendImage: typeof sendImage;
 }>;
