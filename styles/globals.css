@@ -36,7 +36,22 @@ h2 {
   display: block;
 }
 
+.output h1 {
+  font-size: xx-large;
+}
+
+.output img {
+  max-width: 100%;
+  max-height: 90vh;
+}
+
 .generatedImages img {
   width: 750px;
   margin-right: 5px;
 }
+
+.loadingUI {
+  margin-top: 60px;
+  text-align: center;
+}
+

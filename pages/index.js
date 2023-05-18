@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Head from "next/head";
 import Image from "next/image";
 import styles from "../styles/Home.module.css";
@@ -21,8 +21,10 @@ export default function Home() {
   const [type2, setType2] = useState("");
   const [visual, setVisual] = useState("");
   const [name, setName] = useState("");
+  const [prompt, setPrompt] = useState("");
   const [startTime, setStartTime] = useState(new Date());
   const [timeTaken, setTimeTaken] = useState(0);
+  const imageRef = useRef(null);
 
   const images = useQuery("getImages");
 
@@ -43,7 +45,7 @@ export default function Home() {
       console.log(error);
       setError(JSON.stringify(error));
     }
-  }  
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -54,14 +56,9 @@ export default function Home() {
     setStartTime(new Date());
     setTimeTaken(0);
     
-    let prompt = "";
-    if(type1 == "Logo") {
-      prompt = `Logo, ${visual}, business called "${name}"`;
-    } else if(type1 == "Textual Art") {
-      prompt = `Textual Art, ${visual}, business called "${name}"`;
-    } else if(type1 == "3D Icon") {
-      prompt = `3D Icon, ${visual}, business called "${name}"`;
-    }
+    let thePrompt = `${type1}, ${type2} style, ${visual}, business called "${name}"`;
+    console.log("prompt", thePrompt);
+    setPrompt(thePrompt);
 
     //start the generation
     const response = await fetch("/api/predictions", {
@@ -70,7 +67,7 @@ export default function Home() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        prompt: prompt,
+        prompt: thePrompt,
       }),
     });
     let prediction = await response.json();
@@ -81,7 +78,7 @@ export default function Home() {
     setPrediction(prediction);
     setProgress(1);
 
-    let cycle=0;
+    let cycle=0.0;
     while (
       prediction.status !== "succeeded" &&
       prediction.status !== "failed"
@@ -103,16 +100,27 @@ export default function Home() {
       }
       setPrediction(prediction);
 
-      if(cycle < 98) {
+      if(prediction.status === "starting") {
+        cycle = Math.min(30, cycle + 0.1);
+      } else if(cycle < 98) {
         cycle += 1;
-        setProgress(cycle);
       }
+
+      //round to first decimal
+      cycle = Math.round(cycle * 10) / 10;
+
+      setProgress(cycle);
     }
 
     if(prediction.status === "succeeded") {
+      //scroll to image
+      if(imageRef.current) {
+        imageRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }
+
       //store the image
       setProgress(99);
-      await uploadImageToConvex(prediction.output, prompt);
+      // await uploadImageToConvex(prediction.output, prompt);
       console.log("image generated", prediction.output);
       
       setProgress(100);
@@ -129,54 +137,58 @@ export default function Home() {
   const handleVisualChange = (event) => setVisual(event.target.value);
   const handleNameChange = (event) => setName(event.target.value);
 
-  // useEffect(() => {
-  //   console.log(type1, type2, visual, name);
-  // }, [type1, type2, visual, name]);
+  useEffect(() => {
+    console.log("Form change", type1, type2, visual, name);
+  }, [type1, type2, visual, name]);
 
   return (
     <div className={styles.container}>
       <Head>
-        <title>Print Wizard</title>
+        <title>{loading ? `${progress}%: Wish Craft` : 'Wish Craft'}</title>
       </Head>
 
-      <h1>Logo Maker</h1>
+      <h1>Wish Craft</h1>
 
       <Tabs>
         <TabList>
-          <Tab>{loading ? `Generate: ${progress}%` : 'Generate'}</Tab>
-          <Tab>More Generated Images</Tab>
+          <Tab>{loading ? `Generating Your ${type1}: ${progress}%` : `Generate ${type1}`}</Tab>
+          <Tab>Previously Generated Logos</Tab>
         </TabList>
 
         <TabPanel>
-          <form className="flex flex-col space-y-1 items-center" onSubmit={handleSubmit}>
-            <ButtonBar name="type1" buttons={["Logo", "Textual Art", "3D Icon"]} onChange={handleType1Change} />
-            <ButtonBar name="type2" buttons={["Style 1", "Style 2", "Style 3"]} onChange={handleType2Change} />
-            <label className="my-2" style={{width: "60%"}}>Primary visual:
-              <input type="text" name="visual" placeholder="Visual e.g. robot at a desk, skateboard" onChange={handleVisualChange}  style={{width: "70%"}} />
-            </label>
-            <label className="my-2" style={{width: "60%"}}>Company name:
-              <input type="text" name="name" placeholder="Name, e.g. Super Startup" onChange={handleNameChange}  style={{width: "70%"}} />
-            </label>
-            <button type="submit" className="rounded-full bg-green-500	hover:bg-green-600" style={{width: "80%"}}>Generate my logo!</button>
+          <form className="grid grid-cols-4 gap-4 items-center" onSubmit={handleSubmit}>
+            <label>I wish for a:</label>
+            <ButtonBar name="type1" buttons={["Logo", "Textual Art", "3D Icon"]} onChange={handleType1Change} className="col-span-3" />
+            
+            <label>In this style:</label>
+            <ButtonBar name="type2" buttons={["Cartoon", "Illustration", "Modern"]} onChange={handleType2Change} className="col-span-3" />
+            
+            <label>Primary visual:</label>
+            <input type="text" name="visual" placeholder="Visual e.g. robot at a desk, skateboard" onChange={handleVisualChange}  className="rounded-lg px-2 col-span-3" />
+            
+            <label>With the name:</label>
+            <input type="text" name="name" placeholder="Name, e.g. Super Startup" onChange={handleNameChange} className="rounded-lg px-2 col-span-3" />
+            
+            <button type="submit" className="rounded-full text-white bg-blue-500	hover:bg-blue-600 col-span-4">Craft My Wish!</button>
           </form>
+
 
           {error && <div>{error}</div>}
 
           {prediction && (
-            <div>
+            <div className="output mt-14 flex flex-col items-center text-sm">
                 {prediction.output && (
-                  <div className={styles.imageWrapper}>
-                    <img src={prediction.output} alt="output" style={{"maxWidth": "100vw"}} />
-                    <p>
+                  <div className={`flex flex-col items-center ${styles.imageWrapper}`}>
+                    <h1 className="mb-4">🎉 Your wish has been crafted!</h1>
+                    <img src={prediction.output} alt="output" ref={imageRef} />
+                    <p className="text-gray-400">
                       Time taken: {timeTaken} seconds
-                      {/* Image URL: {prediction.output}<br /> */}
                     </p>
                 </div>
                 )}
                 {loading && (
-                  <div>
+                  <div className="loadingUI flex flex-col items-center">
                     <p>
-                      {/* <img id="wishGif" src="/wish.gif" /> */}
                       <ClipLoader color={"#123abc"} loading={loading} css={`
                         display: block;
                         margin: 0 auto;
@@ -184,9 +196,12 @@ export default function Home() {
                       `} size={50} />
                       Status: {prediction.status}
                     </p>
-                    <ProgressBar completed={progress} />
+                    <ProgressBar completed={progress} width="80vw" bgColor="#3b82f6" labelColor="#eeeeee" />
                   </div>
                 )}
+              <p className="text-gray-400">
+                Prompt: {prompt}
+              </p>
             </div>
           )}
         </TabPanel>

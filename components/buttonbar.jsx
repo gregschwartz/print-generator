@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const ButtonBar = ({ buttons, name, onChange }) => {
+const ButtonBar = ({ buttons, name, onChange, className }) => {
   const [selected, setSelected] = useState(buttons[0]); // initial selected button
 
   const handleChange = (event) => {
@@ -9,9 +9,9 @@ const ButtonBar = ({ buttons, name, onChange }) => {
   };
 
   return (
-    <div className="flex">
+    <div className={`flex ${className}`}>
       {buttons.map((button, index) => (
-        <div className="flex items-center ml-2" key={button}>
+        <div className="flex items-center mr-2" key={button}>
           <input
             id={`${name}${index}`}
             type="radio"
@@ -23,7 +23,7 @@ const ButtonBar = ({ buttons, name, onChange }) => {
           <label
             htmlFor={`${name}${index}`}
             className={`p-2 border-2 rounded-lg cursor-pointer ${
-              selected === button ? 'border-blue-500 bg-blue-100' : 'border-gray-200'
+              selected === button ? 'border-blue-500 bg-blue-100' : 'border-gray-300'
             }`}
           >
             {button}
